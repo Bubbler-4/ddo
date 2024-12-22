@@ -80,6 +80,10 @@ pub struct SubProblem<T> {
     /// The path to traverse to reach this subproblem from the root
     /// of the original problem
     pub path: Vec<Decision>,
+    /// The parent sub problem, if any. This is used to reconstruct
+    /// the path from root to this sub problem when a solution path
+    /// through this sub problem is requested.
+    pub parent: Option<Arc<Self>>,
     /// An upper bound on the objective reachable in this subproblem
     pub ub: isize,
     /// The depth of the subproblem with respect to the root problem

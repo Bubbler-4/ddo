@@ -258,10 +258,10 @@ where
         self._best_exact_solution()
     }
 
-    fn drain_cutset<F>(&mut self, func: F)
+    fn drain_cutset<F>(&mut self, parent: Arc<SubProblem<Self::State>>, func: F)
     where
         F: FnMut(SubProblem<Self::State>) {
-        self._drain_cutset(func)
+        self._drain_cutset(parent, func)
     }
 }
 
@@ -414,7 +414,7 @@ where
     }
 
 
-    fn _drain_cutset<F>(&mut self, mut func: F)
+    fn _drain_cutset<F>(&mut self, parent: Arc<SubProblem<T>>, mut func: F)
     where
         F: FnMut(SubProblem<T>),
     {
@@ -438,6 +438,7 @@ where
                         ),
                         ub,
                         depth: node.depth,
+                        parent: Some(parent.clone()),
                     })
                 }
             }
@@ -1091,6 +1092,8 @@ where T: Debug + Eq + PartialEq + Hash + Clone {
 // ############################################################################
 
 
+// TODO: `path` will be removed; mdd.path_to_root should be removed as well I think?
+// Also need to think about best_solution()
 #[cfg(test)]
 mod test_default_mdd {
     use std::cmp::Ordering;
@@ -1129,6 +1132,7 @@ mod test_default_mdd {
                 path:  vec![Decision{variable: Variable(0), value: 42}], 
                 ub:    isize::MAX,
                 depth: 1,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1166,6 +1170,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1202,6 +1207,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1238,6 +1244,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1268,6 +1275,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1298,6 +1306,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1334,6 +1343,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1362,6 +1372,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1389,6 +1400,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1417,6 +1429,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1440,6 +1453,14 @@ mod test_default_mdd {
     fn relaxed_populates_the_cutset_and_will_not_squash_first_layer() {
         let cache = EmptyCache::new();
         let dominance = EmptyDominanceChecker::default();
+        let residual = SubProblem { 
+            state: Arc::new(DummyState{depth: 0, value: 0}), 
+            value: 0, 
+            path:  vec![], 
+            ub:    isize::MAX,
+            depth: 0,
+            parent: None,
+        };
         let input = CompilationInput {
             comp_type: crate::CompilationType::Relaxed,
             problem:    &DummyProblem,
@@ -1448,13 +1469,7 @@ mod test_default_mdd {
             cutoff:     &NoCutoff,
             max_width:  1,
             best_lb:    isize::MIN,
-            residual:  &SubProblem { 
-                state: Arc::new(DummyState{depth: 0, value: 0}), 
-                value: 0, 
-                path:  vec![], 
-                ub:    isize::MAX,
-                depth: 0,
-            },
+            residual:  &residual,
             cache: &cache,
             dominance: &dominance,
         };
@@ -1463,7 +1478,7 @@ mod test_default_mdd {
         assert!(result.is_ok());
         
         let mut cutset = vec![];
-        mdd.drain_cutset(|n| cutset.push(n));
+        mdd.drain_cutset(Arc::new(residual), |n| cutset.push(n));
         assert_eq!(cutset.len(), 3); // L1 was not squashed even though it was 3 wide
     }
 
@@ -1485,6 +1500,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1514,6 +1530,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1543,6 +1560,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1571,6 +1589,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1599,6 +1618,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1627,6 +1647,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1654,6 +1675,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1681,6 +1703,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1708,6 +1731,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1735,6 +1759,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1766,6 +1791,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1797,6 +1823,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1828,6 +1855,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1857,6 +1885,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1910,6 +1939,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -1963,6 +1993,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -2016,6 +2047,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -2182,6 +2214,14 @@ mod test_default_mdd {
         let mut cache = SimpleCache::default();
         cache.initialize(&LocBoundsAndThresholdsExamplePb);
         let dominance = EmptyDominanceChecker::default();
+        let residual = SubProblem { 
+            state: Arc::new('r'), 
+            value: 0, 
+            path:  vec![], 
+            ub:    isize::MAX,
+            depth: 0,
+            parent: None,
+        };
         let input = CompilationInput {
             comp_type: crate::CompilationType::Relaxed,
             problem:    &LocBoundsAndThresholdsExamplePb,
@@ -2190,13 +2230,7 @@ mod test_default_mdd {
             cutoff:     &NoCutoff,
             max_width:  3,
             best_lb:    0,
-            residual: &SubProblem { 
-                state: Arc::new('r'), 
-                value: 0, 
-                path:  vec![], 
-                ub:    isize::MAX,
-                depth: 0,
-            },
+            residual: &residual,
             cache: &cache,
             dominance: &dominance,
         };
@@ -2208,7 +2242,7 @@ mod test_default_mdd {
         assert_eq!(Some(16), mdd.best_value());
 
         let mut v = FxHashMap::<char, isize>::default();
-        mdd.drain_cutset(|n| {v.insert(*n.state, n.ub);});
+        mdd.drain_cutset(Arc::new(residual), |n| {v.insert(*n.state, n.ub);});
 
         assert_eq!(16, v[&'a']);
         assert_eq!(14, v[&'b']);
@@ -2243,6 +2277,14 @@ mod test_default_mdd {
         let mut cache = SimpleCache::default();
         cache.initialize(&LocBoundsAndThresholdsExamplePb);
         let dominance = EmptyDominanceChecker::default();
+        let residual = SubProblem { 
+            state: Arc::new('r'), 
+            value: 0, 
+            path:  vec![], 
+            ub:    isize::MAX,
+            depth: 0,
+            parent: None,
+        };
         let input = CompilationInput {
             comp_type: crate::CompilationType::Relaxed,
             problem:    &LocBoundsAndThresholdsExamplePb,
@@ -2251,13 +2293,7 @@ mod test_default_mdd {
             cutoff:     &NoCutoff,
             max_width:  3,
             best_lb:    0,
-            residual: &SubProblem { 
-                state: Arc::new('r'), 
-                value: 0, 
-                path:  vec![], 
-                ub:    isize::MAX,
-                depth: 0,
-            },
+            residual: &residual,
             cache: &cache,
             dominance: &dominance,
         };
@@ -2269,7 +2305,7 @@ mod test_default_mdd {
         assert_eq!(Some(16), mdd.best_value());
 
         let mut v = FxHashMap::<char, isize>::default();
-        mdd.drain_cutset(|n| {v.insert(*n.state, n.ub);});
+        mdd.drain_cutset(Arc::new(residual), |n| {v.insert(*n.state, n.ub);});
 
         assert_eq!(16, v[&'a']);
         assert_eq!(14, v[&'b']);
@@ -2322,6 +2358,14 @@ mod test_default_mdd {
         let mut cache = SimpleCache::default();
         cache.initialize(&LocBoundsAndThresholdsExamplePb);
         let dominance = EmptyDominanceChecker::default();
+        let residual = SubProblem { 
+            state: Arc::new('r'), 
+            value: 0, 
+            path:  vec![], 
+            ub:    isize::MAX,
+            depth: 0,
+            parent: None,
+        };
         let input = CompilationInput {
             comp_type: crate::CompilationType::Relaxed,
             problem:    &LocBoundsAndThresholdsExamplePb,
@@ -2330,13 +2374,7 @@ mod test_default_mdd {
             cutoff:     &NoCutoff,
             max_width:  3,
             best_lb:    15,
-            residual: &SubProblem { 
-                state: Arc::new('r'), 
-                value: 0, 
-                path:  vec![], 
-                ub:    isize::MAX,
-                depth: 0,
-            },
+            residual: &residual,
             cache: &cache,
             dominance: &dominance,
         };
@@ -2348,7 +2386,7 @@ mod test_default_mdd {
         assert_eq!(Some(16), mdd.best_value());
 
         let mut v = FxHashMap::<char, isize>::default();
-        mdd.drain_cutset(|n| {v.insert(*n.state, n.ub);});
+        mdd.drain_cutset(Arc::new(residual), |n| {v.insert(*n.state, n.ub);});
 
         assert_eq!(16, v[&'a']);
         assert_eq!(14, v[&'b']);
@@ -2413,6 +2451,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -2446,6 +2485,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -2484,6 +2524,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,
@@ -2522,6 +2563,7 @@ mod test_default_mdd {
                 path:  vec![], 
                 ub:    isize::MAX,
                 depth: 0,
+                parent: None,
             },
             cache: &cache,
             dominance: &dominance,

@@ -361,6 +361,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 0,
             depth: 0,
+            parent: None,
         });
         assert_eq!(fringe.len(), 1);
         fringe.push(SubProblem{
@@ -369,6 +370,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub: 0,
             depth: 0,
+            parent: None,
         });
         assert_eq!(fringe.len(), 2);
     }
@@ -382,6 +384,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 0,
             depth: 0,
+            parent: None,
         });
         assert_eq!(fringe.len(), 1);
         fringe.push(SubProblem {
@@ -390,6 +393,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 5,
             depth: 0,
+            parent: None,
         });
         assert_eq!(fringe.len(), 1);
     }
@@ -419,6 +423,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 1,
             depth: 0,
+            parent: None,
         };
         let b = SubProblem {
             state: Arc::new(2),
@@ -426,6 +431,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 2,
             depth: 0,
+            parent: None,
         };
         let c = SubProblem {
             state: Arc::new(3),
@@ -433,6 +439,7 @@ mod test_no_dup_fringe {
             path : vec![],
             ub   : 3,
             depth: 0,
+            parent: None,
         };
         let d = SubProblem {
             state: Arc::new(4),
@@ -440,6 +447,7 @@ mod test_no_dup_fringe {
             value: 4,
             ub: 4,
             depth: 0,
+            parent: None,
         };
         let e = SubProblem{
             state: Arc::new(5),
@@ -447,6 +455,7 @@ mod test_no_dup_fringe {
             value: 4,
             ub: 5,
             depth: 0,
+            parent: None,
         };
         let f = SubProblem{
             state: Arc::new(5),
@@ -454,6 +463,7 @@ mod test_no_dup_fringe {
             value: 5,
             ub: 5,
             depth: 0,
+            parent: None,
         };
 
         fringe.push(a.clone());
@@ -489,6 +499,7 @@ mod test_no_dup_fringe {
             value: 4,
             ub: 5,
             depth: 1,
+            parent: None,
         };
         let nf = SubProblem{
             state: Arc::new(5),
@@ -496,6 +507,7 @@ mod test_no_dup_fringe {
             value: 5,
             ub: 5,
             depth: 1,
+            parent: None,
         };
 
         let mut fringe = empty_fringe();
@@ -546,6 +558,7 @@ mod test_no_dup_fringe {
             value: 0,
             ub: 0,
             depth: 0,
+            parent: None,
         });
         fringe
     }
@@ -659,6 +672,7 @@ mod test_no_dup_fringe {
             value,
             ub,
             depth: 0,
+            parent: None,
         }
     }
 }

@@ -270,7 +270,8 @@ fn main() {
         value: 0, 
         path: vec![], 
         ub: isize::MAX, 
-        depth: 0
+        depth: 0,
+        parent: None,
      };
     let input = CompilationInput {
         comp_type: CompilationType::Relaxed,

@@ -381,6 +381,7 @@ where
             path: vec![],
             ub: isize::MAX,
             depth: 0,
+            parent: None,
         }
     }
 
@@ -430,7 +431,7 @@ where
         let Completion{is_exact, ..} = mdd.compile(&compilation)?;
         Self::maybe_update_best(mdd, shared);
         if !is_exact {
-            Self::enqueue_cutset(mdd, shared, node_ub);
+            Self::enqueue_cutset(mdd, Arc::new(node), shared, node_ub);
         }
 
         Ok(())
@@ -453,10 +454,10 @@ where
     }
     /// If necessary, tightens the bound of nodes in the cut-set of `mdd` and
     /// then add the relevant nodes to the shared fringe.
-    fn enqueue_cutset(mdd: &mut D, shared: &Shared<'a, State, C>, ub: isize) {
+    fn enqueue_cutset(mdd: &mut D, parent: Arc<SubProblem<State>>, shared: &Shared<'a, State, C>, ub: isize) {
         let mut critical = shared.critical.lock();
         let best_lb = critical.best_lb;
-        mdd.drain_cutset(|mut cutset_node| {
+        mdd.drain_cutset(parent, |mut cutset_node| {
             cutset_node.ub = ub.min(cutset_node.ub);
             if cutset_node.ub > best_lb {
                 let depth = cutset_node.depth;

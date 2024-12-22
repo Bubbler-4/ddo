@@ -17,6 +17,8 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+use std::sync::Arc;
+
 use crate::{SubProblem, Completion, Reason, Problem, Relaxation, StateRanking, Solution, Cutoff, Cache, DominanceChecker};
 
 // FIXME: Replace that with the following enum definition when const generics allow enum types
@@ -108,7 +110,7 @@ pub trait DecisionDiagram {
     /// This can only be called if the DD was compiled in relaxed mode.
     /// All implementations of the DecisionDiagram trait are allowed to assume
     /// this method will be called at most once per relaxed DD compilation.
-    fn drain_cutset<F>(&mut self, func: F)
+    fn drain_cutset<F>(&mut self, parent: Arc<SubProblem<Self::State>>, func: F)
     where
         F: FnMut(SubProblem<Self::State>);
 }

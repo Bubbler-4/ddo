@@ -106,6 +106,7 @@ mod test_simple_fringe {
             ub   : 10,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         assert_eq!(fringe.len(), 1);
         assert!(!fringe.is_empty());
@@ -122,6 +123,7 @@ mod test_simple_fringe {
             ub   : 10,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('b'),
@@ -129,6 +131,7 @@ mod test_simple_fringe {
             ub   : 20,
             path : vec![],
             depth: 0,
+            parent: None,
         });
 
         assert_eq!(fringe.len(), 2);
@@ -144,6 +147,7 @@ mod test_simple_fringe {
             ub   : 10,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('b'),
@@ -151,6 +155,7 @@ mod test_simple_fringe {
             ub   : 20,
             path : vec![],
             depth: 0,
+            parent: None,
         });
 
         assert_eq!(fringe.len(), 2);
@@ -179,6 +184,7 @@ mod test_simple_fringe {
             ub   : 1,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('b'),
@@ -186,6 +192,7 @@ mod test_simple_fringe {
             ub   : 2,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('c'),
@@ -193,6 +200,7 @@ mod test_simple_fringe {
             ub   : 3,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('d'),
@@ -200,6 +208,7 @@ mod test_simple_fringe {
             ub   : 4,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('e'),
@@ -207,6 +216,7 @@ mod test_simple_fringe {
             ub   : 5,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         fringe.push(SubProblem {
             state: Arc::new('f'),
@@ -214,6 +224,7 @@ mod test_simple_fringe {
             ub   : 5,
             path : vec![],
             depth: 0,
+            parent: None,
         });
         
         assert_eq!(fringe.pop().unwrap().state.deref(), &'f');
@@ -243,6 +254,7 @@ mod test_simple_fringe {
             ub   : 5,
             path : vec![],
             depth: 0,
+            parent: None,
         });
 
         assert!(!fringe.is_empty());
